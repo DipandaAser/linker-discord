@@ -211,6 +211,14 @@ func linkHandler(s *dg.Session, m *dg.MessageCreate) {
 		return
 	}
 
+	// we check if these groups already have link together
+	if lnk, _ := linker.GetLinksByGroupsID([2]string{firstGroup.ID, secondGroup.ID}); lnk != nil {
+
+		// we have a link who match
+		_, _ = replyWithComplex(s, m.Message, buildInfoResponse("This link already exist."))
+		return
+	}
+
 	_, err = linker.CreateLink([2]string{firstGroup.ID, secondGroup.ID})
 	if err != nil {
 		_, _ = replyWithComplex(s, m.Message, buildErrorResponse(ErrGlobal))
