@@ -223,7 +223,41 @@ func linkHandler(s *dg.Session, m *dg.MessageCreate) {
 
 func diffuseHandler(s *dg.Session, m *dg.MessageCreate) {
 
-	_, _ = reply(s, m.Message, "Diffuse command hit!")
+	payload, err := getPayload(formatCommandName("diffuse"), 2, m)
+	if err != nil {
+		msg := buildErrorResponse(fmt.Sprintf("%s, %s", ErrParameterInsufficient, "please provide two linker group/channel id"))
+		_, _ = replyWithComplex(s, m.Message, msg)
+		return
+	}
+
+	// we check if these groups exist
+	var broadcasterGroup, receiverGroup *linker.Group
+	if broadcasterGroup, err = linker.GetGroupByShortCode(payload[0]); err != nil {
+		_, _ = replyWithComplex(s, m.Message, buildErrorResponse(ErrInvalidCode))
+		return
+	}
+
+	if receiverGroup, err = linker.GetGroupByShortCode(payload[1]); err != nil {
+		_, _ = replyWithComplex(s, m.Message, buildErrorResponse(ErrInvalidCode))
+		return
+	}
+
+	// we check if these groups already have diffusion were the broadcaster is broadcasterGroup and the receiver is receiverGroup
+	if diff, _ := linker.GetDiffusionsByBroadcasterAndReceiver(broadcasterGroup.ID, receiverGroup.ID); diff != nil {
+
+		// we have a diffusion who match
+		_, _ = replyWithComplex(s, m.Message, buildInfoResponse("This diffusion already exist."))
+		return
+	}
+
+	_, err = linker.CreateDiffusion(broadcasterGroup.ID, receiverGroup.ID)
+	if err != nil {
+		_, _ = replyWithComplex(s, m.Message, buildErrorResponse(ErrGlobal))
+		return
+	}
+
+	_, _ = replyWithComplex(s, m.Message, buildInfoResponse("Diffusion successfully created."))
+	return
 }
 
 func getPayload(command string, numberOfParameterWanted int, m *dg.MessageCreate) ([]string, error) {
