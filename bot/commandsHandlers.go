@@ -58,16 +58,99 @@ func helpHandler(s *dg.Session, m *dg.MessageCreate) {
 
 func listHandler(s *dg.Session, m *dg.MessageCreate) {
 
-	/*payload, err := getPayload(formatCommandName("list"), 1, m)
+	userChannel, err := s.UserChannelCreate(m.Author.ID)
 	if err != nil {
-		msg := &dg.MessageSend{
-			Embed:           buildErrorResponse(fmt.Sprintf("%s, %s", ERR_PARAMETER_INSUFFICIENT,
-				"provide ")),
-		}
-		_, _ = replyWithComplex(s, m.Message, msg)
 		return
-	}*/
+	}
 
+	// We use this command only in a group channel
+	if m.GuildID == "" {
+		_, _ = s.ChannelMessageSendComplex(userChannel.ID, buildErrorResponse(ErrUseCmdInGroup))
+		return
+	}
+
+	isAdmin, err := isUserAdmin(s, m.Message)
+	if err != nil {
+		_, _ = s.ChannelMessageSendComplex(userChannel.ID, buildErrorResponse(ErrGlobal))
+		return
+	}
+	if !isAdmin {
+		_, _ = s.ChannelMessageSendComplex(userChannel.ID, buildErrorResponse("You don't have the permission to manage this server"))
+		return
+	}
+
+	linksList := []*dg.MessageEmbedField{}
+	links, err := linker.GetLinksByGroupID(formatChannelID(m.GuildID, m.ChannelID))
+	if err == nil {
+
+		for _, lnk := range links {
+
+			link := lnk
+			firstGroup, err := linker.GetGroupByID(link.GroupsID[0])
+			if err != nil {
+				continue
+			}
+
+			secondGroup, err := linker.GetGroupByID(link.GroupsID[1])
+			if err != nil {
+				continue
+			}
+
+			linksList = append(linksList, &dg.MessageEmbedField{
+				Name:   fmt.Sprintf("Link ID: %s", link.ID),
+				Value:  fmt.Sprintf("%s on ***%s*** <---> %s on ***%s***", firstGroup.ShortCode, firstGroup.Service, secondGroup.ShortCode, secondGroup.Service),
+				Inline: false,
+			})
+		}
+	}
+
+	diffusionList := []*dg.MessageEmbedField{}
+	diffs, err := linker.GetDiffusionsByGroupID(formatChannelID(m.GuildID, m.ChannelID))
+	if err == nil {
+
+		for _, dif := range diffs {
+
+			diffusion := dif
+			broadcasterGroup, err := linker.GetGroupByID(diffusion.Broadcaster)
+			if err != nil {
+				continue
+			}
+
+			receiverGroup, err := linker.GetGroupByID(diffusion.Receiver)
+			if err != nil {
+				continue
+			}
+
+			diffusionList = append(diffusionList, &dg.MessageEmbedField{
+				Name:   fmt.Sprintf("Diffusion ID: %s", diffusion.ID),
+				Value:  fmt.Sprintf("%s on ***%s*** ---> %s on ***%s***", broadcasterGroup.ShortCode, broadcasterGroup.Service, receiverGroup.ShortCode, receiverGroup.Service),
+				Inline: false,
+			})
+		}
+	}
+
+	list := []*dg.MessageEmbedField{}
+	list = append(linksList, diffusionList...)
+
+	guildName := ""
+	channelName := ""
+	if guild, err := s.Guild(m.GuildID); err == nil {
+		guildName = guild.Name
+	}
+	if channel, err := s.Channel(m.ChannelID); err == nil {
+		channelName = channel.Name
+	}
+
+	chatName := fmt.Sprintf("%s --> %s", guildName, channelName)
+
+	_, _ = s.ChannelMessageSendComplex(userChannel.ID, &dg.MessageSend{
+		Embed: &dg.MessageEmbed{
+			Title:       "Info",
+			Description: fmt.Sprintf("List of links and diffusion of ***%s*** . (%d items)", chatName, len(list)),
+			Color:       embedInfoColor,
+			Fields:      list,
+		},
+	})
 }
 
 func configHandler(s *dg.Session, m *dg.MessageCreate) {
