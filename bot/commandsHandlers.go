@@ -124,6 +124,10 @@ func startHandler(s *dg.Session, m *dg.MessageCreate) {
 		return
 	}
 
+	if strings.TrimSpace(payload[0]) == "" {
+		return
+	}
+
 	lnk, err := linker.GetLinkByID(payload[0])
 	if err == nil {
 		err := lnk.StartLink()
@@ -155,6 +159,10 @@ func stopHandler(s *dg.Session, m *dg.MessageCreate) {
 	if err != nil {
 		msg := buildErrorResponse(fmt.Sprintf("%s, %s", ErrParameterInsufficient, "please provide a link or diffusion id"))
 		_, _ = replyWithComplex(s, m.Message, msg)
+		return
+	}
+
+	if strings.TrimSpace(payload[0]) == "" {
 		return
 	}
 
