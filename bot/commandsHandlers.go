@@ -109,7 +109,7 @@ func configHandler(s *dg.Session, m *dg.MessageCreate) {
 	}
 
 	chatName := fmt.Sprintf("%s --> %s", guildName, channelName)
-	msg := fmt.Sprintf("Hey Dude this is your linker id of the ***%s*** group/channel. \nLinker Group Code: **%s**", chatName, group.ShortCode)
+	msg := fmt.Sprintf("Hey Dude this is the linker id of the ***%s*** group/channel. \nLinker Group Code: **%s**", chatName, group.ShortCode)
 
 	_, _ = s.ChannelMessageSendComplex(userChannel.ID, buildInfoResponse(msg))
 	return
