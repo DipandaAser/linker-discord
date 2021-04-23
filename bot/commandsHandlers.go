@@ -250,7 +250,7 @@ func diffuseHandler(s *dg.Session, m *dg.MessageCreate) {
 		return
 	}
 
-	// we check if these groups already have diffusion were the broadcaster is broadcasterGroup and the receiver is receiverGroup
+	// we check if these groups already have diffusion together
 	if diff, _ := linker.GetDiffusionsByBroadcasterAndReceiver(broadcasterGroup.ID, receiverGroup.ID); diff != nil {
 
 		// we have a diffusion who match
