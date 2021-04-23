@@ -3,7 +3,7 @@ module github.com/DipandaAser/linker-discord
 go 1.15
 
 require (
-	github.com/DipandaAser/linker v0.2.2
+	github.com/DipandaAser/linker v0.2.3
 	github.com/bwmarrin/discordgo v0.23.3-0.20210327033043-f637c37ba2f0
 	github.com/gin-gonic/gin v1.7.1
 	github.com/gorilla/websocket v1.4.2 // indirect
