@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"errors"
 	"fmt"
 	"github.com/DipandaAser/linker"
 	"github.com/DipandaAser/linker-discord/bot/groups"
@@ -21,15 +20,6 @@ const (
 	embedInfoColor  = 1404802
 	embedErrorColor = 16711680
 )
-
-func formatChannelID(guildId string, channelId string) string {
-
-	return fmt.Sprintf("%s|%s", guildId, channelId)
-}
-
-func formatCommandName(commandName string) string {
-	return fmt.Sprintf("%s%s", commandPrefix, commandName)
-}
 
 func helpHandler(s *dg.Session, m *dg.MessageCreate) {
 
@@ -80,7 +70,7 @@ func listHandler(s *dg.Session, m *dg.MessageCreate) {
 	}
 
 	linksList := []*dg.MessageEmbedField{}
-	links, err := linker.GetLinksByGroupID(formatChannelID(m.GuildID, m.ChannelID))
+	links, err := linker.GetLinksByGroupID(formatChannelIdToLinkerGroupId(m.GuildID, m.ChannelID))
 	if err == nil {
 
 		for _, lnk := range links {
@@ -105,7 +95,7 @@ func listHandler(s *dg.Session, m *dg.MessageCreate) {
 	}
 
 	diffusionList := []*dg.MessageEmbedField{}
-	diffs, err := linker.GetDiffusionsByGroupID(formatChannelID(m.GuildID, m.ChannelID))
+	diffs, err := linker.GetDiffusionsByGroupID(formatChannelIdToLinkerGroupId(m.GuildID, m.ChannelID))
 	if err == nil {
 
 		for _, dif := range diffs {
@@ -144,7 +134,6 @@ func listHandler(s *dg.Session, m *dg.MessageCreate) {
 	chatName := fmt.Sprintf("%s --> %s", guildName, channelName)
 
 	_, _ = s.ChannelMessageSendComplex(userChannel.ID, &dg.MessageSend{
-		TTS: true,
 		Embed: &dg.MessageEmbed{
 			Title:       "Info",
 			Description: fmt.Sprintf("List of links and diffusion of ***%s*** . (%d items)", chatName, len(list)),
@@ -177,7 +166,7 @@ func configHandler(s *dg.Session, m *dg.MessageCreate) {
 		return
 	}
 
-	group, err := groups.VerifyGroupExistenceAndCreateIfNot(formatChannelID(m.GuildID, m.ChannelID))
+	group, err := groups.VerifyGroupExistenceAndCreateIfNot(formatChannelIdToLinkerGroupId(m.GuildID, m.ChannelID))
 	if err != nil {
 		_, _ = s.ChannelMessageSendComplex(userChannel.ID, buildErrorResponse(ErrGlobal))
 		return
@@ -350,39 +339,4 @@ func diffuseHandler(s *dg.Session, m *dg.MessageCreate) {
 
 	_, _ = replyWithComplex(s, m.Message, buildInfoResponse("Diffusion successfully created."))
 	return
-}
-
-func getPayload(command string, numberOfParameterWanted int, m *dg.MessageCreate) ([]string, error) {
-
-	payload := strings.Split(strings.TrimPrefix(strings.TrimPrefix(m.Content, command), " "), " ")
-
-	if len(payload) < numberOfParameterWanted {
-		return payload, errors.New("insufficient parameters")
-	}
-
-	return payload, nil
-}
-
-func buildErrorResponse(description string) *dg.MessageSend {
-
-	return &dg.MessageSend{
-		TTS: true,
-		Embed: &dg.MessageEmbed{
-			Title:       "An error occur",
-			Description: description,
-			Color:       embedErrorColor,
-		},
-	}
-}
-
-func buildInfoResponse(description string) *dg.MessageSend {
-
-	return &dg.MessageSend{
-		TTS: true,
-		Embed: &dg.MessageEmbed{
-			Title:       "Info",
-			Description: description,
-			Color:       embedInfoColor,
-		},
-	}
 }
