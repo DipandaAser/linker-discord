@@ -77,7 +77,7 @@ func globalHandlerMessageCreate(s *dg.Session, m *dg.MessageCreate) {
 		return
 	}
 
-	textMessageHandler(s, m)
+	messageHandler(s, m)
 
 	/*userChannel, _ := s.UserChannelCreate(m.Author.ID)
 
