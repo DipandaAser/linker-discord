@@ -53,7 +53,7 @@ func helpHandler(s *dg.Session, m *dg.MessageCreate) {
 		Fields: commandsField,
 	}
 
-	_, _ = replyWithComplex(s, m.Message, &dg.MessageSend{Embed: mem})
+	_, _ = replyWithComplex(s, m.Message, &dg.MessageSend{TTS: true, Embed: mem})
 }
 
 func listHandler(s *dg.Session, m *dg.MessageCreate) {
@@ -144,6 +144,7 @@ func listHandler(s *dg.Session, m *dg.MessageCreate) {
 	chatName := fmt.Sprintf("%s --> %s", guildName, channelName)
 
 	_, _ = s.ChannelMessageSendComplex(userChannel.ID, &dg.MessageSend{
+		TTS: true,
 		Embed: &dg.MessageEmbed{
 			Title:       "Info",
 			Description: fmt.Sprintf("List of links and diffusion of ***%s*** . (%d items)", chatName, len(list)),
@@ -365,6 +366,7 @@ func getPayload(command string, numberOfParameterWanted int, m *dg.MessageCreate
 func buildErrorResponse(description string) *dg.MessageSend {
 
 	return &dg.MessageSend{
+		TTS: true,
 		Embed: &dg.MessageEmbed{
 			Title:       "An error occur",
 			Description: description,
@@ -376,6 +378,7 @@ func buildErrorResponse(description string) *dg.MessageSend {
 func buildInfoResponse(description string) *dg.MessageSend {
 
 	return &dg.MessageSend{
+		TTS: true,
 		Embed: &dg.MessageEmbed{
 			Title:       "Info",
 			Description: description,
