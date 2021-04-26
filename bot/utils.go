@@ -46,7 +46,7 @@ func buildErrorResponse(description string) *dg.MessageSend {
 
 	return &dg.MessageSend{
 		Embed: &dg.MessageEmbed{
-			Title:       "An error occur",
+			Title:       "Error",
 			Description: description,
 			Color:       embedErrorColor,
 		},
@@ -106,4 +106,12 @@ func getPayload(command string, numberOfParameterWanted int, m *dg.MessageCreate
 
 func formatCommandName(commandName string) string {
 	return fmt.Sprintf("%s%s", commandPrefix, commandName)
+}
+
+func formatStatus(status bool) string {
+	if status {
+		return ":green_circle:"
+	}
+
+	return ":red_circle:"
 }
