@@ -88,7 +88,7 @@ func listHandler(s *dg.Session, m *dg.MessageCreate) {
 
 			linksList = append(linksList, &dg.MessageEmbedField{
 				Name:   fmt.Sprintf("Link ID: %s", link.ID),
-				Value:  fmt.Sprintf("%s on ***%s*** <---> %s on ***%s***", firstGroup.ShortCode, firstGroup.Service, secondGroup.ShortCode, secondGroup.Service),
+				Value:  fmt.Sprintf("%s on ***%s*** <---> %s on ***%s***\nStatus: %s", firstGroup.ShortCode, firstGroup.Service, secondGroup.ShortCode, secondGroup.Service, formatStatus(link.Active)),
 				Inline: false,
 			})
 		}
@@ -113,7 +113,7 @@ func listHandler(s *dg.Session, m *dg.MessageCreate) {
 
 			diffusionList = append(diffusionList, &dg.MessageEmbedField{
 				Name:   fmt.Sprintf("Diffusion ID: %s", diffusion.ID),
-				Value:  fmt.Sprintf("%s on ***%s*** ---> %s on ***%s***", broadcasterGroup.ShortCode, broadcasterGroup.Service, receiverGroup.ShortCode, receiverGroup.Service),
+				Value:  fmt.Sprintf("%s on ***%s*** ---> %s on ***%s***\nStatus: %s", broadcasterGroup.ShortCode, broadcasterGroup.Service, receiverGroup.ShortCode, receiverGroup.Service, formatStatus(diffusion.Active)),
 				Inline: false,
 			})
 		}
