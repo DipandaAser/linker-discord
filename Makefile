@@ -1,4 +1,4 @@
-APPNAME=tweetwatcher
+APPNAME=linker-discord
 
 run:
 	go run main.go
